@@ -52,6 +52,55 @@ You do not need to install the Tool! If you copy the Executable and start it, th
 
 ## General
 
+### Support
+There is no Support! You can create an [Issue](https://github.com/jhochwald/who_needs_wannacry_patches/issues/new) if something is wrong.
+
+### Hotfixes
+The tool looks for the following Patches/Hotfixes.
+
+* KB4012212
+* KB4012213
+* KB4012214
+* KB4012215
+* KB4012216
+* KB4012217
+* KB4012598
+* KB4012606
+* KB4013198
+* KB4013429
+* KB4015217
+* KB4015438
+* KB4015549
+* KB4015550
+* KB4015551
+* KB4015552
+* KB4015553
+* KB4016635
+* KB4019215
+* KB4019216
+* KB4019264
+* KB4019472
+
+A few more then required! But this is based on the fact, that Microsoft push a lot of Patches and Rollups. These could contain the needed paches, so I decided to include them as well.
+
+#### Missing Link
+Some Operating Systems need more then one Patch/Hotfixes!
+
+As an example Server 2012 R2 needs the following:
+
+* KB4012213
+* KB4012216
+
+The Script and the Tools (cause its based on the same source) will report the system as safe, even if there is just one of the two (2) needed installed.
+
+That is a drawback! It's based on the fact, that the script is a quick hack, and I avoided any kind of logic. To make it better, the OS info from the Active Directory should be used. And the Hot fixes must be checked based on that.
+
+This is something that others might want to develop, shouldn't be that hard. If someone accepts this challenge: Please feel free to implement it and send me a pull request. I would recompile and sign a new version :-)
+
+### Roadmap
+There is no plan to develop any further features or even fixes. 
+If someone find something bad or extends the functionality, I will publish newer versions.
+
 ### Requirements
 There are a few requirements!
 * The Tool must be elevated (**Run as Administrator is the default**)
