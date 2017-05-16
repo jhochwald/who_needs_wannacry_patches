@@ -6,18 +6,23 @@ In general, there is no big difference to the [Gist](https://gist.github.com/jho
 
 ## Main Screen
 ![Main Screen](docs/Start_Screen.png)
+
 There is nothing to configure. The Report is a plain ASC Text File that is created where the executable is.
 
 ## Run
 ![While it runs](docs/Scan_Run.png)
+
 This might take a while. The Time depends upon the number of computers found in the Active Directory and your Network Performance!
 
 ## Report Format
 ![Report Sample](docs/Report_Sample.png)
+
 Again: This is just a plain ASC File! First, I started with a CSV File, but based upon a request I changed that to a plain Text file.
 
 ### Naming Convention
-The Name of the Report is: **HotfixReport-** and there is the following Date String appended to each run: `yyy-mm-dd-hhmm`. The extension is `.txt`.
+The Name of the Report is:
+**HotfixReport-** and there is the following Date String appended to each run: `yyy-mm-dd-hhmm`.
+The extension is `.txt`.
 
 #### Example
 `HotfixReport-2017-16-16-0316.txt`
