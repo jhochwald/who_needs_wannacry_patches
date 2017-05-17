@@ -4,6 +4,8 @@ This is the executable version of my PowerShell Script, with a very basic UI.
 
 In general, there is no big difference to the [Gist](https://gist.github.com/jhochwald/666a0b51f2d13d62e63c9e4200168793) I published a few days ago. This is a compiled PowerShell Script, and I added the Report File creation.
 
+Even if all of your systems are patched, you should disable SMBv1 on all of them. Version 1 of the SMB implementation is 30 years old, slow and buggy! And there is no guarantee that with the hotfixes the existing security issues are all solved. There might be another attack, who knows! Trust me, SMBv1 is dangerous!!!
+
 ## Main Screen
 ![Main Screen](docs/Start_Screen.png)
 
@@ -97,6 +99,18 @@ That is a drawback! It's based on the fact, that the script is a quick hack, and
 
 This is something that others might want to develop, shouldn't be that hard. If someone accepts this challenge: Please feel free to implement it and send me a pull request. I would recompile and sign a new version :-)
 
+#### Possible Solution
+In the /source folder you will find a file called `Possible_Filter.ps1`.
+This Filter is untested! It should work, but with the older Operating Systems... Just my guess how to find them. I don't have them, so this is really a best guess.
+I found this in one off our reporting functions and adopted it by add the older versions. The input just works for Windows 10 (Client) and Windows Server 2012 R2, or newer (Server).
+
+**The challenge**: There is a known list with Hotfixes for the Windows Versions. However, I have no idea what CU's contains these patches! And as soon as Microsoft publishes more of them the list gets more and more complex.
+
+##### Overview of the Hotfixes
+Here is the List of Hotfixes that applies to the known WannaCry issue, for each Windows Version.
+
+**Windows Vista*** KB4012598**Server 2008*** KB4012598**Server 2008 R2*** KB4012212* KB4012215**Server 2012*** KB4012214* KB4012217**Server 2012 R2*** KB4012213* KB4012216**Windows 7*** KB4012212* KB4012215**Windows 8.1*** KB4012213* KB4012216**Windows RT 8.1*** KB4012216**Windows XP & Windows Server 2003/2003 R2*** [https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/](https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/)
+
 ### Roadmap
 There is no plan to develop any further features or even fixes. 
 If someone find something bad or extends the functionality, I will publish newer versions.
@@ -111,6 +125,8 @@ There are a few requirements!
 * The remote system should allow Remote Management (Check the ‘*Windows Remote Management*’ Rule)
 * PowerShell 4.0, or newer needs to be installed
 * Windows 7, or newer are required. Or Windows Server 2008R2, or newer.
+
+You should have Domain Admin permission! And the remote systems (servers and clients) must allow remote connection and remote management.
 
 I tested the Script ([Gist](https://gist.github.com/jhochwald/666a0b51f2d13d62e63c9e4200168793)) abd this Tool only on Windows 10 based Clients and Windows Server 2016 based Servers. I never tested it on any other OS! I should run :-)
 
@@ -131,9 +147,14 @@ And some didn't (why ever) like Powershell!
 
 ### Why Free
 Why not? Sometimes it feels great if you can help others. And it's not all about the Benjamin's all the time :-)
+And it took me just about an hour to put it all together. Most time was spent with this document and test everything.
 
 #### Donations
-If you want to give something back, donate something to a good charity organization. On the other hand, buy me a drink if we ever meet :-)
+If you want to donate something: Donate something to a good charity organization. 
+
+On the other hand, buy me a drink if we ever meet :-)
+
+And Star the Script and/or this repository!
 
 ### Warranty
 The code is provided 'as is,' with all possible faults, defects or errors, and without warranty of any kind.
