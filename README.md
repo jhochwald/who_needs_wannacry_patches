@@ -1,121 +1,313 @@
-# Who needs WannaCry related patches
+# Search for WannaCry Vulnerabilities
 
-This is the executable version of my PowerShell Script, with a very basic UI.
+The tool is scanning all Windows Systems in your Active Directory for the following:
 
-In general, there is no big difference to the [Gist](https://gist.github.com/jhochwald/666a0b51f2d13d62e63c9e4200168793) I published a few days ago. This is a compiled PowerShell Script, and I added the Report File creation.
+* Are the EternalBlue (WannyCry) related Hotfixes installed
+* Is SMBv1 still installed
+* Is SMBv1 still activated
 
-Even if all of your systems are patched, you should disable SMBv1 on all of them. Version 1 of the SMB implementation is 30 years old, slow and buggy! And there is no guarantee that with the hotfixes the existing security issues are all solved. There might be another attack, who knows! Trust me, SMBv1 is dangerous!!!
+The tool generates a CSV File with the information above. You can then use Excel (or any other tool that can do this) to filter for everything you would like to know.
 
+Tha basic ideas is based my [Gist](https://gist.github.com/jhochwald/666a0b51f2d13d62e63c9e4200168793) that I published while the first WannyCry wave hits.
+
+I extended the Tool based on requests and feedback.
+
+### Table Of Contents
+<!-- MarkdownTOC depth=3 autolink=true autoanchor=true bracket=round -->
+
+- [Main Screen](#main-screen)
+- [Run](#run)
+- [Report Format](#report-format)
+	- [Naming Convention](#naming-convention)
+	- [Content](#content)
+		- [ComputerName](#computername)
+		- [Operating System](#operating-system)
+		- [Version](#version)
+		- [LastReboot](#lastreboot)
+		- [WannaCryHotFix](#wannacryhotfix)
+		- [SMBv1Installed](#smbv1installed)
+		- [SMBv1Enabled](#smbv1enabled)
+- [Installation \(Optional\)](#installation-optional)
+	- [Check](#check)
+- [General](#general)
+	- [Support](#support)
+	- [Hotfixes](#hotfixes)
+		- [Missing Link](#missing-link)
+	- [Changes](#changes)
+	- [Roadmap](#roadmap)
+	- [Requirements](#requirements)
+	- [Source Code](#source-code)
+	- [Signed](#signed)
+	- [Why this tool](#why-this-tool)
+	- [Why Free](#why-free)
+	- [Warranty](#warranty)
+	- [Copyright](#copyright)
+	- [License](#license)
+
+<!-- /MarkdownTOC -->
+
+
+<a name="main-screen"></a>
 ## Main Screen
-![Main Screen](docs/Start_Screen.png)
 
-There is nothing to configure. The Report is a plain ASC Text File that is created where the executable is.
+<img src="docs/Start_Screen.png?raw=true" />
 
+There is nothing to configure. The Report is a CSV File that is created where the executable is.
+
+<a name="run"></a>
 ## Run
-![While it runs](docs/Scan_Run.png)
+
+<img src="docs/Scan_Run.png?raw=true" />
 
 This might take a while. The Time depends upon the number of computers found in the Active Directory and your Network Performance!
 
+**You need to run the Tool as Administrator (Elevated)!**
+
+<a name="report-format"></a>
 ## Report Format
-![Report Sample](docs/Report_Sample.png)
 
-Again: This is just a plain ASC File! First, I started with a CSV File, but based upon a request I changed that to a plain Text file.
+Since Version 2, the tools generates a CSV Reporting. It also contains the SMBv1 related information. So it contains the info of my other scripts as well.
 
+<img src="docs/Report_Sample.png?raw=true" />
+
+<a name="naming-convention"></a>
 ### Naming Convention
-The Name of the Report is:
-**HotfixReport-** and there is the following Date String appended to each run: `yyy-mm-dd-hhmm`.
-The extension is `.txt`.
 
-#### Example
+The Name of the Report is **HotfixReport-** and there is the following Date String appended to each run `yyy-mm-dd-hhmm`. The extension is `.csv`.
+
+Example:
+
 `HotfixReport-2017-16-16-0316.txt`
-That File is generated on May, 16th 2017 at 3:16.
 
+That Sameple is generated on May, 16th 2017 at 3:16.
+
+<a name="content"></a>
 ### Content
-We talk about a very basic report here. I just implemented a limited number of text strings.
 
-#### Good Case
-`$computer has hotfix $hotfix installed`
+The following fields are reported
 
-#### Bad Case
-`$computer is missing WannaCry hotfix`
+<a name="computername"></a>
+#### ComputerName
 
-#### Problem
-`Unable to get Hostfix Info from $computer`
+Name of the target system.
 
+Example:
+
+`TESTVM01`
+
+If the system reports another name (via the CIM session) as the one returned from the Active Directoy, the Tool use this.
+
+<a name="operating-system"></a>
+#### Operating System
+
+The Operating System reported by CIM
+
+Exapmles:
+
+* `Microsoft Windows 10 Pro`
+* `Microsoft Windows Server 2016 Standard`
+
+Search the Microsoft Support or TechNet pages for all possible returns.
+
+<a name="version"></a>
+#### Version
+
+The Operating System Version reported by CIM
+
+Exapmles:
+
+* `10.0.14393`
+* `10.0.15063`
+
+Search the Microsoft Support or TechNet pages for all possible returns.
+
+<a name="lastreboot"></a>
+#### LastReboot
+
+The TimeStamp of the last Reboot (Uptime).
+I found it usefull to have that info about the uptime of all systems. Might be useless.
+
+Exapmles:
+
+* `10.05.2017 15:47:14`
+* `10.05.2017 16:07:40`
+
+The TimeStamp uses the locales of your system!
+
+<a name="wannacryhotfix"></a>
+#### WannaCryHotFix
+
+All EternalBlue (WannaCry) related and installed hotfixes.
+
+As far as I understood Microsoft publications, all Versions later then 10.0.14393 are not effeted by the EternalBlue vulnerabilities, so I implemented a `Not Applicable` for them.
+
+Examples:
+
+* `Not Applicable` - For Windows Versions greater then 10.0.14393)
+* `Unknown` - The tool was unable to get the info. You should check all of these ASAP!
+* `KB4012212` - Just this EternalBlue (WannyCry) related fix is installed
+* `KB4012212, KB4012213` - These two EternalBlue (WannyCry) related fixes are installed
+
+<a name="smbv1installed"></a>
+#### SMBv1Installed
+
+Is the SMBv1 feature installed on the system? This is a Bool.
+
+Examples:
+
+* `True`
+* `False`
+* `Unknown` - The tool was unable to get the info. You should check all of these ASAP!
+
+<a name="smbv1enabled"></a>
+#### SMBv1Enabled
+
+Is the SMBv1 feature activated on the system? This is a Bool.
+
+Examples:
+
+* `True`
+* `False`
+* `Unknown` - The tool was unable to get the info. You should check all of these ASAP!
+
+<a name="installation-optional"></a>
 ## Installation (Optional)
-I created a very simple MSI installer! No fancy options, nothing!
+
+I created a very simple (now 64Bit) MSI installer! No fancy options, nothing!
+
 The Installer will deploy the Executable to the following Path by default:
-`C:\Program Files (x86)\Enabling Technology\Who needs WannaCry related patches`
+`C:\Program Files\Enabling Technology\Search for WannaCry Vulnerabilities`
 
-You do not need to install the Tool! If you copy the Executable and start it, this is just fine! The Installer is more for convenience only. I know that some prefer to have a working installer for every tool.
+==Please note, that the location has changes since the last version.==
 
+You do not need to install the Tool! If you copy the Executable and start it, this is just fine!
+The Installer is more for convenience only. I know that some prefer to have a working installer for every tool.
+
+<a name="check"></a>
 ### Check
-![Check the Installation](docs/Installed_info.png)
 
+<img src="docs/Installed_info.png?raw=true" />
+
+<a name="general"></a>
 ## General
 
+<a name="support"></a>
 ### Support
+
 There is no Support! You can create an [Issue](https://github.com/jhochwald/who_needs_wannacry_patches/issues/new) if something is wrong.
 
+<a name="hotfixes"></a>
 ### Hotfixes
-The tool looks for the following Patches/Hotfixes.
 
-* KB4012212
-* KB4012213
-* KB4012214
-* KB4012215
-* KB4012216
-* KB4012217
-* KB4012598
-* KB4012606
-* KB4013198
-* KB4013429
-* KB4015217
-* KB4015438
-* KB4015549
-* KB4015550
-* KB4015551
-* KB4015552
-* KB4015553
-* KB4016635
-* KB4019215
-* KB4019216
-* KB4019264
-* KB4019472
+The tool looks for the following Patches/Hotfixes:
+
+* **KB4012212**
+* **KB4012213**
+* **KB4012214**
+* **KB4012215**
+* **KB4012216**
+* **KB4012217**
+* **KB4012598**
+* **KB4012606**
+* **KB4013198**
+* **KB4013429**
+* **KB4015217**
+* **KB4015438**
+* **KB4015549**
+* **KB4015550**
+* **KB4015551**
+* **KB4015552**
+* **KB4015553**
+* **KB4016635**
+* **KB4019215**
+* **KB4019216**
+* **KB4019264**
+* **KB4019472**
 
 A few more then required! But this is based on the fact, that Microsoft push a lot of Patches and Rollups. These could contain the needed paches, so I decided to include them as well.
 
+<a name="missing-link"></a>
 #### Missing Link
+
 Some Operating Systems need more then one Patch/Hotfixes!
+
+**With Version 2, the tool should be able to report them all. And you might then use Excel (or any other tool that can do the job) to filter whatever you want to know.**
 
 As an example Server 2012 R2 needs the following:
 
 * KB4012213
 * KB4012216
 
-The Script and the Tools (cause its based on the same source) will report the system as safe, even if there is just one of the two (2) needed installed.
-
-That is a drawback! It's based on the fact, that the script is a quick hack, and I avoided any kind of logic. To make it better, the OS info from the Active Directory should be used. And the Hot fixes must be checked based on that.
-
-This is something that others might want to develop, shouldn't be that hard. If someone accepts this challenge: Please feel free to implement it and send me a pull request. I would recompile and sign a new version :-)
-
-#### Possible Solution
-In the /source folder you will find a file called `Possible_Filter.ps1`.
-This Filter is untested! It should work, but with the older Operating Systems... Just my guess how to find them. I don't have them, so this is really a best guess.
-I found this in one off our reporting functions and adopted it by add the older versions. The input just works for Windows 10 (Client) and Windows Server 2012 R2, or newer (Server).
-
-**The challenge**: There is a known list with Hotfixes for the Windows Versions. However, I have no idea what CU's contains these patches! And as soon as Microsoft publishes more of them the list gets more and more complex.
-
 ##### Overview of the Hotfixes
-Here is the List of Hotfixes that applies to the known WannaCry issue, for each Windows Version.
 
-**Windows Vista*** KB4012598**Server 2008*** KB4012598**Server 2008 R2*** KB4012212* KB4012215**Server 2012*** KB4012214* KB4012217**Server 2012 R2*** KB4012213* KB4012216**Windows 7*** KB4012212* KB4012215**Windows 8.1*** KB4012213* KB4012216**Windows RT 8.1*** KB4012216**Windows XP & Windows Server 2003/2003 R2*** [https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/](https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/)
+Here is the List of Hotfixes that applies to the known EternalBlue (WannyCry) issue, for each Windows Version.
 
+**Windows Vista**
+
+* KB4012598
+
+**Server 2008**
+
+* KB4012598
+
+**Server 2008 R2**
+
+* KB4012212
+* KB4012215
+
+**Server 2012**
+
+* KB4012214
+* KB4012217
+
+**Server 2012 R2**
+
+* KB4012213
+* KB4012216
+
+**Windows 7**
+
+* KB4012212
+* KB4012215
+
+**Windows 8.1**
+
+* KB4012213
+* KB4012216
+
+**Windows RT 8.1**
+
+* KB4012216
+
+**Windows XP & Windows Server 2003/2003 R2**
+
+* [https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/](https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/)
+
+<a name="changes"></a>
+### Changes
+
+Here are the Changes from Version 1.0 to 2.0
+
+* Changed the Output from plain ASC Text to CSV. That makes it easier to handle a report in a tool like Excel
+* Dropped the `Get-HotFix` usage and use CIM instead
+* Use some CIM calls to gather the needed information (Based on the [Enabling Technology](http://www.enatec.io) Framework)
+* ~~Export to Excel to support native Excel Files instead of CSV~~ Had some issues with that.
+* Gather more infos (e.g. the SMBv1 related infos)
+* Get all related Hotfixes
+* UI improved
+* Elevation (Admin) check
+* Scan now shows a bit more info while it runs
+* Installer is now 64Bit
+
+<a name="roadmap"></a>
 ### Roadmap
-There is no plan to develop any further features or even fixes. 
+
+There is no plan to develop any further features or even fixes.
 If someone find something bad or extends the functionality, I will publish newer versions.
 
+<a name="requirements"></a>
 ### Requirements
+
 There are a few requirements!
 * The Tool must be elevated (**Run as Administrator is the default**)
 * The RSAT Tools must be installed. Install it via Server Manager (Server) or Download (Client). Just Google for "*Windows RSAT*"
@@ -130,37 +322,45 @@ You should have Domain Admin permission! And the remote systems (servers and cli
 
 I tested the Script ([Gist](https://gist.github.com/jhochwald/666a0b51f2d13d62e63c9e4200168793)) abd this Tool only on Windows 10 based Clients and Windows Server 2016 based Servers. I never tested it on any other OS! I should run :-)
 
+<a name="source-code"></a>
 ### Source Code
+
 **I decided not to publish the code!**
-But again: The logic is based on the [Gist](https://gist.github.com/jhochwald/666a0b51f2d13d62e63c9e4200168793) I published. The only missing part is the UI.
 
-#### Customization?
-This is not planned. If you honestly need any kind of customization, you will have to spend a few $!!! Contact me if this is sincerely needed. However, I think the general approach should fit in almost any cases!
-And if not: Use the Script. You can customize whatever you like.
+Some stuff is based on the commercial framework off [Enabling Technology](http://www.enatec.io) implementation. And Yep, I'm allowed to do that :)
 
+But again: Most of the logic is based on the [Gist](https://gist.github.com/jhochwald/666a0b51f2d13d62e63c9e4200168793) I published.
+
+<a name="signed"></a>
 ### Signed
-The Executable and the Installer are signed with a valid certificate. So there shouldn't be any problems with virus scanners or the execution/installation.
 
+The Executable and the Installer are signed with a valid certificate.
+So there shouldn't be any problems with virus scanners or the execution/installation.
+
+<a name="why-this-tool"></a>
 ### Why this tool
-Because the WannCryt aka WannaCry problem isn't solved and there are still unpatched systems. 
+
+Because the EternalBlue (Related to WannCryt aka WannaCry) problem isn't solved and there are still unpatched systems.
+And some might just want to have a report to see that there network is secure. And as a benefit: A SMBv1 related reporting is also included.
+
 And some didn't (why ever) like Powershell!
 
+<a name="why-free"></a>
 ### Why Free
-Why not? Sometimes it feels great if you can help others. And it's not all about the Benjamin's all the time :-)
-And it took me just about an hour to put it all together. Most time was spent with this document and test everything.
 
-#### Donations
-If you want to donate something: Donate something to a good charity organization. 
+Why not?
 
-On the other hand, buy me a drink if we ever meet :-)
-
-And Star the Script and/or this repository!
-
+<a name="warranty"></a>
 ### Warranty
-The code is provided 'as is,' with all possible faults, defects or errors, and without warranty of any kind.
 
+The Tool, the installer, and the code is provided 'as is,' with all possible faults, defects or errors, and without warranty of any kind.
+
+<a name="copyright"></a>
 ### Copyright
+
 (c) 2017 by Joerg Hochwald - [hochwald.net](http://hochwald.net)
 
+<a name="license"></a>
 ### License
-This tool, like the script, is general public domain. Even if I decided to keep the source closed. 
+
+This tool, like the script, is general public domain. Even if I decided to keep the source of the tool closed. The source for most parts is availible.
